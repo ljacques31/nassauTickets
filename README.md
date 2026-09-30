@@ -39,7 +39,11 @@ Pré requisitos: Node.js 22, MySQL 8.0 rodando.
 ```
 cd backend
 npm install
+npm install express@4 mysql2 bcryptjs jsonwebtoken cors dotenv
 cp .env.example .env        (no Windows: Copy-Item .env.example .env)
+npm run db:setup
+npm run db:demo
+npm run dev
 ```
 Edite backend/.env com o usuário e a senha do MySQL. Depois:
 ```
@@ -48,6 +52,14 @@ npm run db:demo             opcional: cria atendente2 e atendente3
 cd ../frontend
 npm install
 ```
+
+Instalação Frontend:
+```
+npm install
+npm install react@19 react-dom@19 react-router-dom@7
+npm install -D vite @vitejs/plugin-react
+```
+
 
 ## Execução
 Terminal 1:
