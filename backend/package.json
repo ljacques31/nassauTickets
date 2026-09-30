@@ -1,0 +1,17 @@
+{
+  "name": "nassautickets-backend",
+  "version": "1.0.0",
+  "description": "API do nassauTickets: emissão, fila, chamada e atendimento de senhas",
+  "type": "module",
+  "main": "src/server.js",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "db:setup": "node database/setup.js",
+    "db:reset": "node database/setup.js --reset",
+    "db:demo": "node database/setup.js --demo",
+    "test": "node --test --test-concurrency=1 \"tests/*.test.js\""
+  },
+  "license": "MIT"
+}

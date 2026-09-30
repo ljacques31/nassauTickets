@@ -1,54 +1,99 @@
-# Requisitos do Sistema nassauTickets
+# Requisitos do nassauTickets
 
-## 1. Requisitos Funcionais
+## Agentes
 
-| ID | Requisito | Agente |
-|----|-----------|--------|
-| RF01 | O cliente deve emitir uma senha (SP, SG ou SE) pelo totem, sem se identificar. | AC |
-| RF02 | O sistema deve gerar a senha no padrão `YYMMDD-PPSQ`, com sequência por tipo e reinício diário. | AS |
-| RF03 | O sistema deve manter a fila de senhas e definir a próxima conforme as regras de prioridade. | AS |
-| RF04 | O atendente deve fazer login para acessar o guichê. | AA |
-| RF05 | O atendente deve chamar a próxima senha. | AA |
-| RF06 | O atendente deve iniciar e finalizar o atendimento. | AA |
-| RF07 | O atendente deve poder chamar novamente uma senha. | AA |
-| RF08 | O painel deve exibir as 5 últimas senhas chamadas, sem mostrar a próxima. | AS |
-| RF09 | A chamada deve emitir áudio informando prioridade, senha e guichê. | AS |
-| RF10 | A função "Chamar Novamente" deve repetir o áudio e exibir a indicação "Última chamada". | AS |
-| RF11 | O sistema deve controlar o estado da senha: EMITIDA, AGUARDANDO, CHAMADA, CHAMADA_NOVAMENTE, EM_ATENDIMENTO, ATENDIDA e NÃO_COMPARECEU. | AS |
-| RF12 | O gestor deve consultar relatórios diário e mensal. | AA (gestor) |
-| RF13 | O relatório deve trazer senhas emitidas e atendidas (geral e por prioridade) e o tempo médio de atendimento. | AS |
-| RF14 | O relatório detalhado deve mostrar número, tipo, data/hora de emissão, data/hora de atendimento e guichê. Para senhas não atendidas, os campos de atendimento ficam em branco. | AS |
-| RF15 | O relatório de auditoria deve registrar atendente, guichê, senha, horário da 1ª e da 2ª chamada, início e fim do atendimento. | AS |
-| RF16 | O gestor deve fazer os cadastros do sistema. | AA (gestor) |
+| Sigla | Agente | Papel |
+|---|---|---|
+| AS | Sistema | Emite senhas, organiza filas, aplica a prioridade, exibe o painel, registra auditoria |
+| AA | Atendente | Faz login no guichê, chama, inicia, finaliza, chama novamente, registra não comparecimento |
+| AC | Cliente | Retira senha no totem, de forma anônima |
 
-## 2. Regras de Negócio
+## Requisitos funcionais
 
-| ID | Regra |
-|----|-------|
-| RN01 | Ordem de atendimento: `[SP] → [SE\|SG] → [SP] → [SE\|SG]`. |
-| RN02 | SP tem a maior prioridade e SG a menor. A SE é chamada após uma SP, quando houver. |
-| RN03 | Qualquer guichê pode atender qualquer tipo de senha. |
-| RN04 | Se uma fila estiver vazia, o sistema segue as regras de prioridade para escolher a próxima. |
-| RN05 | A senha não atendida após duas chamadas é considerada abandonada (NÃO_COMPARECEU). |
-| RN06 | Cerca de 5% das senhas emitidas devem ser consideradas não atendidas, conforme a especificação do projeto. |
-| RN07 | O expediente é das 7h às 17h. |
-| RN08 | Atendimentos iniciados devem ser concluídos e encerrados pelo atendente. |
-| RN09 | Ao fim do expediente, senhas que permanecerem na fila são descartadas. |
-| RN10 | O cliente é anônimo. O atendente tem perfil adicional de gestor. |
-| RN11 | A numeração das senhas reinicia todo dia. |
+| Código | Requisito |
+|---|---|
+| RF01 | O totem deve emitir senhas dos tipos SP (prioritária), SE (retirada de exames) e SG (geral), sem identificar o cliente. |
+| RF02 | A senha deve seguir o formato YYMMDD-PPSQ, com sequência de três dígitos reiniciada diariamente por tipo. |
+| RF03 | O totem só emite senhas dentro do expediente (padrão 07:00 às 17:00). |
+| RF04 | O atendente deve fazer login informando usuário, senha e guichê. |
+| RF05 | O atendente deve chamar a próxima senha; o sistema escolhe a senha pela regra de prioridade. |
+| RF06 | O atendente deve iniciar e finalizar o atendimento. |
+| RF07 | O atendente pode chamar novamente uma senha uma única vez ("Última chamada"). |
+| RF08 | Após a segunda chamada sem comparecimento, o atendente registra NÃO_COMPARECEU. |
+| RF09 | O painel exibe as 5 últimas senhas chamadas com o guichê, sem exibir a próxima. |
+| RF10 | Cada chamada é anunciada por áudio com prioridade, senha e guichê. |
+| RF11 | No fim do expediente, as senhas que aguardam na fila são descartadas; atendimentos iniciados são concluídos pelo atendente. |
+| RF12 | Relatórios diário e mensal com quantitativo geral e por prioridade de senhas emitidas e atendidas. |
+| RF13 | Relatório detalhado com número, tipo, data e hora de emissão, data e hora de atendimento e guichê; campos de atendimento em branco para senhas não atendidas. |
+| RF14 | Relatório de tempo médio de atendimento, geral e por tipo. |
+| RF15 | Relatório de auditoria com atendente, guichê, senha, 1ª chamada, 2ª chamada, início e fim do atendimento. |
+| RF16 | Um usuário pode ter perfil de atendente e, adicionalmente, de gestor. |
+| RF17 | O gestor cadastra atendentes e guichês. |
+| RF18 | O gestor configura o horário do expediente e pode encerrar o expediente manualmente. |
+| RF19 | O sistema oferece simulação do Agente Cliente, com cerca de 5% das senhas não atendidas. |
+| RF20 | O gestor exporta os relatórios em CSV e imprime. |
+| RF21 | Indicadores de desempenho: tempo médio de espera, tempo médio de atendimento, taxas e movimento por hora, guichê e atendente. |
 
-## 3. Requisitos Não Funcionais
+## Regras de negócio
 
-| ID | Categoria | Requisito |
-|----|-----------|-----------|
-| RNF01 | Segurança | O acesso do atendente/gestor exige autenticação, e as senhas são armazenadas de forma protegida (hash). |
-| RNF02 | Segurança | O acesso a relatórios e cadastros é restrito ao perfil de gestor. |
-| RNF03 | Disponibilidade | O sistema deve funcionar durante todo o expediente (7h às 17h). |
-| RNF04 | Disponibilidade | Diante de falha no backend ou no banco, o frontend e o painel devem exibir uma mensagem clara e não travar. |
-| RNF05 | Auditoria | Toda chamada e todo atendimento devem ser registrados com data e hora. |
-| RNF06 | Desempenho | A emissão de senha e a atualização do painel devem ocorrer em poucos segundos. O sistema deve permitir acompanhar o desempenho dos atendimentos por meio do tempo médio de atendimento. |
-| RNF07 | Concorrência | Se dois atendentes pedirem a próxima senha ao mesmo tempo, a mesma senha não pode ser entregue às duas pessoas. |
-| RNF08 | LGPD | O cliente não é identificado, e o sistema coleta apenas os dados necessários ao atendimento. |
-| RNF09 | Acessibilidade | O painel e o totem devem ter letras grandes, bom contraste e áudio na chamada. |
-| RNF10 | Usabilidade | As telas devem ser simples, para que qualquer cliente use o totem sem ajuda. |
-| RNF11 | Tecnologia | Frontend em React, backend em Node.js com Express e banco de dados MySQL 8.0. |
+| Código | Regra |
+|---|---|
+| RN01 | Ordem de chamada: [SP] → [SE\|SG] → [SP] → [SE\|SG]. Após SP, chama SE; sem SE, SG; sem ambas, SP. Após SE ou SG (ou no início do dia), chama SP; sem SP, SE; depois SG. |
+| RN02 | Dentro do mesmo tipo, vale a ordem de emissão. |
+| RN03 | A regra de prioridade é global: considera a última senha chamada por qualquer guichê. |
+| RN04 | Um atendente só chama nova senha depois de concluir a atual. |
+| RN05 | Uma senha nunca é entregue a dois guichês. |
+| RN06 | Uma senha pode ser chamada no máximo duas vezes. |
+| RN07 | NÃO_COMPARECEU só é permitido após a segunda chamada. |
+| RN08 | Senhas em estado final (ATENDIDA, NÃO_COMPARECEU, DESCARTADA) não mudam mais. |
+| RN09 | No fechamento, senhas EMITIDA e AGUARDANDO passam para DESCARTADA. |
+| RN10 | O limite diário é de 999 senhas por tipo. |
+| RN11 | Um guichê com atendimento em andamento não pode ser assumido por outro atendente. |
+| RN12 | Deve existir sempre ao menos um gestor ativo. |
+
+## Requisitos não funcionais
+
+### Segurança
+- RNF01: senhas de login armazenadas com hash bcrypt.
+- RNF02: autenticação por token JWT com validade de 10 horas; perfis verificados no backend em todas as rotas.
+- RNF03: bloqueio temporário após 5 tentativas de login sem sucesso em 15 minutos.
+- RNF04: limite de 30 emissões por minuto por endereço (proteção do totem).
+- RNF05: segredos apenas no arquivo .env, fora do repositório.
+- RNF06: mensagens de erro sem detalhes internos; cabeçalhos de segurança HTTP.
+
+### Disponibilidade e comportamento em falhas
+- RNF07: com o banco indisponível, a API responde 503 com mensagem clara e se recupera sozinha quando o banco volta.
+- RNF08: painel, totem e guichês detectam perda de conexão, exibem aviso e reconectam automaticamente.
+- RNF09: o painel mantém na tela as últimas chamadas conhecidas durante a falha.
+- RNF10: o totem reenvia a emissão com chave de idempotência; nunca gera senha duplicada nem entrega senha sem gravação.
+
+### Auditoria
+- RNF11: toda mudança de estado de senha é registrada em senha_eventos com atendente, guichê e horário com milissegundos, na mesma transação da mudança.
+- RNF12: logins, falhas, bloqueios e saídas são registrados em logs_acesso.
+
+### Desempenho
+- RNF13: pool de conexões com o banco.
+- RNF14: índices para a busca da fila e dos relatórios.
+- RNF15: atualização do painel por eventos do servidor (SSE), sem consultas repetidas.
+- RNF16: relatórios paginados.
+
+### Concorrência
+- RNF17: chamada da próxima senha dentro de transação com bloqueio da linha de controle da fila (SELECT ... FOR UPDATE).
+- RNF18: sequência diária incrementada de forma atômica no banco.
+- RNF19: nova tentativa automática em caso de deadlock.
+- RNF20: botões bloqueados no frontend enquanto a ação está em andamento.
+
+### LGPD
+- RNF21: o cliente é anônimo; nenhum dado pessoal é coletado no totem (minimização).
+- RNF22: dados pessoais armazenados limitam-se a nome e login dos atendentes, necessários para a auditoria.
+- RNF23: acesso a relatórios restrito ao perfil de gestor.
+
+### Acessibilidade
+- RNF24: fonte Atkinson Hyperlegible, desenhada para baixa visão; alto contraste.
+- RNF25: cor do tipo sempre acompanhada da sigla escrita (não depende só da cor).
+- RNF26: áudio das chamadas; navegação por teclado com foco visível; rótulos ligados aos campos; mensagens anunciadas por leitores de tela.
+- RNF27: respeito à preferência de reduzir movimento; telas adaptadas ao celular.
+
+## Pontos a confirmar com o documento base
+- Tempos médios de atendimento por tipo usados na simulação (SP 15±5 min, SG 5±3 min, SE até 1 min em 95% e 5 min em 5%).
+- Distribuição de tipos na simulação (SP 20%, SE 30%, SG 50%).
